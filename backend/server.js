@@ -2,6 +2,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const dotenv = require('dotenv');
 const userRoutes = require('./routes/userRoutes');
+const pantryItemRoutes = require('./routes/pantryItemRoutes');
 
 // load environment variables
 dotenv.config();
@@ -13,6 +14,7 @@ app.use(express.json());
 
 // routes
 app.use('/api/users', userRoutes);
+app.use('/api/pantryItems', pantryItemRoutes);
 
 // MongoDB connection
 mongoose.connect(process.env.MONGO_URI, {
