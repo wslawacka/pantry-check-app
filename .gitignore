@@ -4,3 +4,4 @@
 **/.expo/
 **/.expo-shared/
 .vscode/
+**/eslint.config.mjs
