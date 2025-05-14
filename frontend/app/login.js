@@ -1,5 +1,5 @@
 import { React, useState } from 'react';
-import { View, Text, TextInput, Button, Alert } from 'react-native';
+import { View, Text, TextInput, Button, Alert, StyleSheet } from 'react-native';
 import * as SecureStore from 'expo-secure-store';
 import { useRouter } from 'expo-router';
 import { loginUser } from '../api/auth';
@@ -30,7 +30,7 @@ export default function Login() {
         } catch(error) {
             Alert.alert(
                 'Login failed',
-                error.response?.data?.message || error.message || 'Unknown error'
+                error.response?.data?.message || error.message || 'Login failed. Please try again.'
             );
         } finally {
             setLoading(false);
@@ -38,23 +38,43 @@ export default function Login() {
     };
 
     return (
-        <View>
-            <Text>Login</Text>
+        <View style={styles.container}>
+            <Text style={styles.title}>Login</Text>
             <TextInput
                 placeholder='Username'
                 value={username}
                 onChangeText={setUsername}
+                style={styles.input}
             />
             <TextInput
                 placeholder='Password'
                 value={password}
                 onChangeText={setPassword}
                 secureTextEntry
+                style={styles.input}
             />
             <Button title={loading ? 'Logging in...' : 'Login'} onPress={handleLogin} disabled={loading} />
             <Button title='Back to Home' onPress={() => router.replace('/')} />
         </View>
     );
-
-
 }
+
+const styles = StyleSheet.create({
+    container: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        gap: 10
+    },
+    title: {
+        fontWeight: 'bold',
+        fontSize: 20
+    },
+    input: {
+        padding: 5,
+        width: 200,
+        borderWidth: 1,
+        borderColor: 'rgba(0, 0, 0, 0.4)',
+        borderRadius: 4
+    }
+});
