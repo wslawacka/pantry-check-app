@@ -51,12 +51,14 @@ export default function Register() {
                 onChangeText={setUsername}
                 style={styles.input}
             />
+            {errors.username && <Text style={styles.error}>{errors.username}</Text>}
             <TextInput
                 placeholder='Email'
                 value={email}
                 onChangeText={setEmail}
                 style={styles.input}
             />
+            {errors.email && <Text style={styles.error}>{errors.email}</Text>}
             <TextInput
                 placeholder='Password'
                 value={password}
@@ -64,6 +66,7 @@ export default function Register() {
                 secureTextEntry
                 style={styles.input}
             />
+            {errors.password && <Text style={styles.error}>{errors.password}</Text>}
             <Button title={ loading? 'Registering...' : 'Register'} onPress={handleRegister} />
             <Button title='Back to Home' onPress={() => router.replace('/')} />
         </View>
@@ -79,7 +82,8 @@ const styles = StyleSheet.create({
     },
     title: {
         fontWeight: 'bold',
-        fontSize: 20
+        fontSize: 20,
+        marginBottom: 10
     },
     input: {
         padding: 5,
@@ -87,5 +91,9 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         borderColor: 'rgba(0, 0, 0, 0.4)',
         borderRadius: 4
+    },
+    error: {
+        color: 'red',
+        marginBottom: 5
     }
 });

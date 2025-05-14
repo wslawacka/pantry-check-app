@@ -3,18 +3,27 @@ import { View, Text, TextInput, Button, Alert, StyleSheet } from 'react-native';
 import * as SecureStore from 'expo-secure-store';
 import { useRouter } from 'expo-router';
 import { loginUser } from '../api/auth';
+import { validateLoginUsername, validateLoginPassword } from '../utils/validation';
 
 export default function Login() {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
+    const [errors, setErrors] = useState({});
     const [loading, setLoading] = useState(false);
     const router = useRouter();
 
     const handleLogin = async () => {
-        if (!username || !password) {
-            Alert.alert('Error', 'Please enter both username and password.');
+        const usernameError = validateLoginUsername(username);
+        const passwordError = validateLoginPassword(password);
+
+        if (usernameError || passwordError) {
+            setErrors({
+                username: usernameError,
+                password: passwordError
+            });
             return;
         }
+        setErrors({});
         setLoading(true);
 
         try {
@@ -46,6 +55,7 @@ export default function Login() {
                 onChangeText={setUsername}
                 style={styles.input}
             />
+            {errors.username && <Text style={styles.error}>{errors.username}</Text>}
             <TextInput
                 placeholder='Password'
                 value={password}
@@ -53,6 +63,7 @@ export default function Login() {
                 secureTextEntry
                 style={styles.input}
             />
+            {errors.password && <Text style={styles.error}>{errors.password}</Text>}
             <Button title={loading ? 'Logging in...' : 'Login'} onPress={handleLogin} disabled={loading} />
             <Button title='Back to Home' onPress={() => router.replace('/')} />
         </View>
@@ -76,5 +87,9 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         borderColor: 'rgba(0, 0, 0, 0.4)',
         borderRadius: 4
+    },
+    error: {
+        color: 'red',
+        marginBottom: 5
     }
 });
