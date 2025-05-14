@@ -1,8 +1,14 @@
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet, Button } from 'react-native';
+import { useRouter } from 'expo-router';
+
 export default function Home() {
+    const router = useRouter();
+
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Welcome to PantryCheck!</Text>
+      <Button title='Login' onPress={() => router.push('/login')} />
+      <Button title='Register' onPress={() => router.push('/register')} />
     </View>
   );
 }
