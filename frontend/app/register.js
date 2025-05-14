@@ -1,8 +1,9 @@
 import { React, useState } from 'react';
-import { View, Text, TextInput, Button, StyleSheet, Alert } from 'react-native';
+import { View, Text, TextInput, StyleSheet, Alert, Pressable } from 'react-native';
 import { useRouter } from 'expo-router';
 import { registerUser } from '../api/auth';
 import { validateUsername, validateEmail, validatePassword } from '../utils/validation';
+import colors from '../styles/colors';
 
 export default function Register() {
     const [username, setUsername] = useState('');
@@ -29,8 +30,7 @@ export default function Register() {
         setLoading(true);
 
         try {
-            const res = await registerUser(username, email, password);
-            Alert.alert('Success', 'Registration successful! You can now log in.');
+            await registerUser(username, email, password);
             router.replace('/login');
         } catch(error) {
             Alert.alert(
@@ -67,8 +67,44 @@ export default function Register() {
                 style={styles.input}
             />
             {errors.password && <Text style={styles.error}>{errors.password}</Text>}
-            <Button title={ loading? 'Registering...' : 'Register'} onPress={handleRegister} />
-            <Button title='Back to Home' onPress={() => router.replace('/')} />
+            <Pressable
+                style={({ pressed }) => [
+                    styles.registerButton,
+                    pressed && styles.registerButtonPressed,
+                    loading && styles.registerButtonDisabled
+                ]}
+                onPress={handleRegister}
+                disabled={loading}
+            >
+                <Text style={styles.registerButtonText}>
+                    {loading ? 'Registering...' : 'Register'}
+                </Text>
+            </Pressable>
+            <View style={styles.promptRow}>
+                <Text style={styles.promptText}>Already have an account?</Text>
+                <Pressable
+                    style={({ pressed }) => [
+                        styles.button,
+                        pressed && styles.buttonPressed
+                    ]}
+                    onPress={() => router.replace('/login')}
+                >
+                    <Text style={styles.buttonText}>
+                        Log in
+                    </Text>
+                </Pressable>
+            </View>
+            <Pressable
+                style={({ pressed }) => [
+                    styles.button,
+                    pressed && styles.buttonPressed
+                ]}
+                onPress={() => router.replace('/')}
+            >
+                <Text style={styles.buttonText}>
+                    Back to Home
+                </Text>
+            </Pressable>
         </View>
     );
 }
@@ -78,22 +114,58 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
-        gap: 10
+        gap: 10,
+        backgroundColor: colors.background
     },
     title: {
-        fontWeight: 'bold',
-        fontSize: 20,
-        marginBottom: 10
+        textAlign: 'center',
+        fontSize: 24,
+        marginBottom: 14
     },
     input: {
-        padding: 5,
-        width: 200,
+        paddingVertical: 6,
+        paddingHorizontal: 10,
+        width: 220,
+        fontSize: 18,
         borderWidth: 1,
         borderColor: 'rgba(0, 0, 0, 0.4)',
         borderRadius: 4
     },
     error: {
-        color: 'red',
-        marginBottom: 5
+        color: colors.error,
+        fontSize: 16
+    },
+    registerButton: {
+        backgroundColor: colors.primary,
+        paddingHorizontal: 20,
+        paddingVertical: 8,
+        borderRadius: 4,
+        marginTop: 10,
+        marginBottom: 30
+    },
+    registerButtonPressed: {
+        backgroundColor: colors.primaryLight
+    },
+    registerButtonDisabled: {
+        backgroundColor: colors.accent
+    },
+    registerButtonText: {
+        fontSize: 18
+    },
+    buttonText: {
+        fontSize: 18,
+        textDecorationLine: 'underline'
+    },
+    buttonPressed: {
+        opacity: 0.6
+    },
+    promptRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginBottom: 6
+    },
+    promptText: {
+        fontSize: 18,
+        marginRight: 10
     }
 });

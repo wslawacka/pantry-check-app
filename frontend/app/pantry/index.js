@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { View, Text, FlatList, Button, ActivityIndicator, StyleSheet } from 'react-native';
 import api from '../../api/axios';
 import { useAuth } from "../../hooks/useAuth";
+import colors from "../../styles/colors";
 
 export default function PantryList() {
     const loadingAuth = useAuth();
@@ -31,10 +32,9 @@ export default function PantryList() {
                 data={items}
                 keyExtractor={item => item._id}
                 renderItem={({ item }) => (
-                    <View style={styles.item}>
-                        <Text>{item.name} ({item.quantity})</Text>
-                    </View>
+                    <Text style={styles.item}>{item.name} ({item.quantity})</Text>
                 )}
+                contentContainerStyle={{ alignItems: 'center', gap: 10 }}
             />
         </View>
     );
@@ -43,13 +43,19 @@ export default function PantryList() {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
+        backgroundColor: colors.background,
+        padding: 50
     },
     title: {
-        fontWeight: 'bold'
+        fontWeight: 'bold',
+        textAlign: 'center',
+        fontSize: 22,
+        marginBottom: 12
     },
     item: {
-
+        fontSize: 18,
+        padding: 16,
+        borderBottomWidth: 1,
+        borderColor: colors.primary
     }
-})
+});
