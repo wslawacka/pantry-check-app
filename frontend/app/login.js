@@ -1,4 +1,4 @@
-import { React, useState } from 'react';
+import { useState } from 'react';
 import { View, Text, TextInput, Alert, StyleSheet, Pressable } from 'react-native';
 import * as SecureStore from 'expo-secure-store';
 import { useRouter } from 'expo-router';
@@ -54,6 +54,7 @@ export default function Login() {
                 value={username}
                 onChangeText={setUsername}
                 autoCapitalize='none'
+                textContentType='username'
                 style={styles.input}
             />
             {errors.username && <Text style={styles.error}>{errors.username}</Text>}
@@ -63,6 +64,7 @@ export default function Login() {
                 onChangeText={setPassword}
                 autoCapitalize='none'
                 secureTextEntry
+                textContentType='password'
                 style={styles.input}
             />
             {errors.password && <Text style={styles.error}>{errors.password}</Text>}

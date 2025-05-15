@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
-import { View, Text, FlatList, ActivityIndicator, StyleSheet } from 'react-native';
+import { View, Text, FlatList, ActivityIndicator, StyleSheet, Button } from 'react-native';
 import api from '../../api/axios';
 import { useAuthGuard } from "../../hooks/useAuthGuard";
 import colors from "../../styles/colors";
+import { router } from "expo-router";
+import { getPantryItems } from "../../api/pantry";
 
 export default function PantryList() {
     const loadingAuth = useAuthGuard();
@@ -10,7 +12,7 @@ export default function PantryList() {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-       api.get('/pantryItems')
+       getPantryItems()
         .then(res => {
             setItems(res.data.pantryItems);
         })
@@ -35,6 +37,7 @@ export default function PantryList() {
                 )}
                 contentContainerStyle={{ alignItems: 'center', gap: 10 }}
             />
+            <Button title='Go to Add' onPress={() => router.replace('/pantry/add')}></Button>
         </View>
     );
 }

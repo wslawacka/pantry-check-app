@@ -1,4 +1,4 @@
-import { React, useState } from 'react';
+import { useState } from 'react';
 import { View, Text, TextInput, StyleSheet, Alert, Pressable } from 'react-native';
 import { useRouter } from 'expo-router';
 import { registerUser } from '../api/auth';
@@ -50,6 +50,7 @@ export default function Register() {
                 value={username}
                 onChangeText={setUsername}
                 autoCapitalize='none'
+                textContentType='username'
                 style={styles.input}
             />
             {errors.username && <Text style={styles.error}>{errors.username}</Text>}
@@ -58,6 +59,7 @@ export default function Register() {
                 value={email}
                 onChangeText={setEmail}
                 autoCapitalize='none'
+                textContentType='emailAddress'
                 style={styles.input}
             />
             {errors.email && <Text style={styles.error}>{errors.email}</Text>}
@@ -67,6 +69,7 @@ export default function Register() {
                 onChangeText={setPassword}
                 autoCapitalize='none'
                 secureTextEntry
+                textContentType='newPassword'
                 style={styles.input}
             />
             {errors.password && <Text style={styles.error}>{errors.password}</Text>}
