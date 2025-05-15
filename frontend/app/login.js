@@ -53,6 +53,7 @@ export default function Login() {
                 placeholder='Username'
                 value={username}
                 onChangeText={setUsername}
+                autoCapitalize='none'
                 style={styles.input}
             />
             {errors.username && <Text style={styles.error}>{errors.username}</Text>}
@@ -60,6 +61,7 @@ export default function Login() {
                 placeholder='Password'
                 value={password}
                 onChangeText={setPassword}
+                autoCapitalize='none'
                 secureTextEntry
                 style={styles.input}
             />

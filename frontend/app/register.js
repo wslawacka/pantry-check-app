@@ -49,6 +49,7 @@ export default function Register() {
                 placeholder='Username'
                 value={username}
                 onChangeText={setUsername}
+                autoCapitalize='none'
                 style={styles.input}
             />
             {errors.username && <Text style={styles.error}>{errors.username}</Text>}
@@ -56,6 +57,7 @@ export default function Register() {
                 placeholder='Email'
                 value={email}
                 onChangeText={setEmail}
+                autoCapitalize='none'
                 style={styles.input}
             />
             {errors.email && <Text style={styles.error}>{errors.email}</Text>}
@@ -63,6 +65,7 @@ export default function Register() {
                 placeholder='Password'
                 value={password}
                 onChangeText={setPassword}
+                autoCapitalize='none'
                 secureTextEntry
                 style={styles.input}
             />

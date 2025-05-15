@@ -1,18 +1,17 @@
 import { useEffect, useState } from "react";
-import { View, Text, FlatList, Button, ActivityIndicator, StyleSheet } from 'react-native';
+import { View, Text, FlatList, ActivityIndicator, StyleSheet } from 'react-native';
 import api from '../../api/axios';
-import { useAuth } from "../../hooks/useAuth";
+import { useAuthGuard } from "../../hooks/useAuthGuard";
 import colors from "../../styles/colors";
 
 export default function PantryList() {
-    const loadingAuth = useAuth();
+    const loadingAuth = useAuthGuard();
     const [items, setItems] = useState([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
        api.get('/pantryItems')
         .then(res => {
-            console.log('Pantry items:', res.data);
             setItems(res.data.pantryItems);
         })
         .catch(err => {

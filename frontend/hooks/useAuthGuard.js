@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import * as SecureStore from 'expo-secure-store';
 import { useRouter } from 'expo-router';
 
-export function useAuth() {
+export function useAuthGuard() {
     const [loading, setLoading] = useState(true);
     const router = useRouter();
 
