@@ -9,7 +9,7 @@ import colors from '../styles/colors';
 export default function Login() {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
-    const [errors, setErrors] = useState({});
+    const [errors, setErrors] = useState<{ username?: string, password?: string }>({});
     const [loading, setLoading] = useState(false);
     const router = useRouter();
 
@@ -28,7 +28,7 @@ export default function Login() {
         setLoading(true);
 
         try {
-            const res = await loginUser(username, password);
+            const res = await loginUser({ username, password });
             const token = res.data.token;
             if (token) {
                 await SecureStore.setItemAsync('token', token);
@@ -85,7 +85,6 @@ export default function Login() {
                 <Text style={styles.promptText}>Don’t have an account?</Text>
                     <Pressable
                         style={({ pressed }) => [
-                        styles.button,
                         pressed && styles.buttonPressed
                         ]}
                         onPress={() => router.replace('/register')}
@@ -97,7 +96,6 @@ export default function Login() {
             </View>
             <Pressable
                 style={({ pressed }) => [
-                    styles.button,
                     pressed && styles.buttonPressed
                 ]}
                 onPress={() => router.replace('/')}

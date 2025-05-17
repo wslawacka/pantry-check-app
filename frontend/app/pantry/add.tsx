@@ -9,7 +9,7 @@ import colors from '../../styles/colors';
 export default function AddPantryItem() {
     const [name, setName] = useState('');
     const [category, setCategory] = useState('');
-    const [expiryDate, setExpiryDate] = useState(new Date());
+    const [expiryDate, setExpiryDate] = useState(new Date().toISOString());
     const [quantity, setQuantity] = useState(0);
     const [barcode, setBarcode] = useState('');
     const loading = useAuthGuard();
@@ -23,7 +23,7 @@ export default function AddPantryItem() {
 
     const handleAdd = async () => {
         try {
-            await addPantryItem({ name, category, expiryDate: new Date(expiryDate), quantity: Number(quantity), barcode });
+            await addPantryItem({ name, category, expiryDate: expiryDate.split('T')[0], quantity, barcode });
             router.replace('/pantry');
         } catch(error) {
             Alert.alert(
@@ -54,10 +54,10 @@ export default function AddPantryItem() {
                 <DateTimePicker
                 mode='date'
                 display='default'
-                value={expiryDate}
+                value={new Date(expiryDate)}
                 onChange={(event, selectedDate) => {
                     if (selectedDate) {
-                        setExpiryDate(selectedDate)
+                        setExpiryDate(selectedDate.toISOString())
                     }
                 }}
                 minimumDate={new Date()}
@@ -67,8 +67,8 @@ export default function AddPantryItem() {
             <TextInput
                 placeholder='Quantity'
                 keyboardType='numeric'
-                value={quantity}
-                onChangeText={setQuantity}
+                value={quantity.toString()}
+                onChangeText={(text) => setQuantity(Number(text))}
                 style={styles.input}
             />
             <TextInput

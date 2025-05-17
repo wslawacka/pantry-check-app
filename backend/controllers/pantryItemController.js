@@ -86,7 +86,7 @@ async function deletePantryItem(req, res) {
 async function getAllPantryItems(req, res) {
     try {
         const allPantryItems = await PantryItem.find({ user: req.userId });
-        res.status(200).json({ message: 'Items retrieved successfully', pantryItems: allPantryItems });
+        res.status(200).json({ message: 'Items retrieved successfully', items: allPantryItems });
     } catch(error) {
         console.error(error);
         res.status(500).json({ message: 'Server error while retrieving the items' });

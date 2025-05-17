@@ -9,7 +9,7 @@ export default function Register() {
     const [username, setUsername] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-    const [errors, setErrors] = useState({});
+    const [errors, setErrors] = useState<{ username?: string, email?: string, password?: string }>({});
     const [loading, setLoading] = useState(false);
     const router = useRouter();
 
@@ -30,7 +30,7 @@ export default function Register() {
         setLoading(true);
 
         try {
-            await registerUser(username, email, password);
+            await registerUser({ username, email, password });
             router.replace('/login');
         } catch(error) {
             Alert.alert(
@@ -90,7 +90,6 @@ export default function Register() {
                 <Text style={styles.promptText}>Already have an account?</Text>
                 <Pressable
                     style={({ pressed }) => [
-                        styles.button,
                         pressed && styles.buttonPressed
                     ]}
                     onPress={() => router.replace('/login')}
@@ -102,7 +101,6 @@ export default function Register() {
             </View>
             <Pressable
                 style={({ pressed }) => [
-                    styles.button,
                     pressed && styles.buttonPressed
                 ]}
                 onPress={() => router.replace('/')}
