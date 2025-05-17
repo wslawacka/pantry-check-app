@@ -1,6 +1,6 @@
-const { body } = require('express-validator');
+import { body } from 'express-validator';
 
-const pantryItemValidation = [
+export const pantryItemValidation = [
     body('name')
         .trim()
         .notEmpty().withMessage('Name is required')
@@ -14,9 +14,9 @@ const pantryItemValidation = [
         .trim()
         .notEmpty().withMessage('Expiry date is required')
         .isISO8601().withMessage('Expiry date must be a valid date')
-        .custom((date) => {
-            if (new Date(date) <= new Date()) {
-                throw new Error('Expiry date must be in the future');
+        .custom((date: string) => {
+            if (date < new Date().toISOString().split('T')[0]) {
+                throw new Error('Expiry date must not be in the past');
             }
             return true;
         }),
@@ -30,7 +30,7 @@ const pantryItemValidation = [
         .withMessage('Invalid barcode format (expected 8, 12, or 13 digits)')
 ];
 
-const pantryItemUpdateValidation = [
+export const pantryItemUpdateValidation = [
     body('name')
         .optional()
         .trim()
@@ -44,9 +44,9 @@ const pantryItemUpdateValidation = [
         .optional()
         .trim()
         .isISO8601().withMessage('Expiry date must be a valid date')
-        .custom((date) => {
-            if (new Date(date) <= new Date()) {
-                throw new Error('Expiry date must be in the future');
+        .custom((date: string) => {
+            if (date < new Date().toISOString().split('T')[0]) {
+                throw new Error('Expiry date must not be in the past');
             }
             return true;
         }),
@@ -59,5 +59,3 @@ const pantryItemUpdateValidation = [
         .matches(/^(\d{8}|\d{12,13})$/)
         .withMessage('Invalid barcode format (expected 8, 12, or 13 digits)')
 ];
-
-module.exports = { pantryItemValidation, pantryItemUpdateValidation };

@@ -1,18 +1,22 @@
-const { validationResult } = require('express-validator');
-const PantryItem = require('../models/pantryItem');
+import { Request, Response } from 'express';
+import { validationResult } from 'express-validator';
+import { PantryItem } from '../models/pantryItem';
+import { PantryItemCreate, PantryItemUpdate } from '../../types/pantry';
 
-async function addPantryItem(req, res) {
+export async function addPantryItem(req: Request, res: Response): Promise<void> {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-        return res.status(400).json({ errors: errors.array() });
+        res.status(400).json({ errors: errors.array() });
+        return;
     }
 
     try {
-        const { name, category, expiryDate, quantity, barcode } = req.body;
+        const { name, category, expiryDate, quantity, barcode } = req.body as PantryItemCreate;
 
         const userId = req.userId;
         if (!userId) {
-            return res.status(401).json({ message: 'Unauthorized: no user ID found' });
+            res.status(401).json({ message: 'Unauthorized: no user ID found' });
+            return;
         }
 
         const newPantryItem = new PantryItem({
@@ -27,7 +31,8 @@ async function addPantryItem(req, res) {
         const savedPantryItem = await newPantryItem.save();
         if (!savedPantryItem) {
             console.error("Failed to save pantry item:", newPantryItem);
-            return res.status(500).json({ message: 'Failed to add pantry item' });
+            res.status(500).json({ message: 'Failed to add pantry item' });
+            return;
         }
 
         res.status(201).json({
@@ -40,10 +45,12 @@ async function addPantryItem(req, res) {
     }
 }
 
-async function updatePantryItem(req, res) {
+export async function updatePantryItem(req: Request, res: Response): Promise<void> {
     try {
-        if (req.body.name) req.body.name = req.body.name.toLowerCase();
-        if (req.body.category) req.body.category = req.body.category.toLowerCase();
+        const updates = req.body as PantryItemUpdate;
+        if (updates.name) updates.name = updates.name.toLowerCase();
+        if (updates.category) updates.category = updates.category.toLowerCase();
+
 
         const updatedPantryItem = await PantryItem.findOneAndUpdate(
             { _id: req.params.id, user: req.userId },
@@ -52,7 +59,8 @@ async function updatePantryItem(req, res) {
         );
 
         if (!updatedPantryItem) {
-            return res.status(404).json({ message: 'Item not found' });
+            res.status(404).json({ message: 'Item not found' });
+            return;
         }
 
         res.status(200).json({
@@ -65,12 +73,13 @@ async function updatePantryItem(req, res) {
     }
 }
 
-async function deletePantryItem(req, res) {
+export async function deletePantryItem(req: Request, res: Response): Promise<void> {
     try {
         const deletedPantryItem = await PantryItem.findOneAndDelete({ _id: req.params.id, user: req.userId });
 
         if (!deletedPantryItem) {
-            return res.status(404).json({ message: 'Item not found' });
+            res.status(404).json({ message: 'Item not found' });
+            return;
         }
 
         res.status(200).json({
@@ -83,7 +92,7 @@ async function deletePantryItem(req, res) {
     }
 }
 
-async function getAllPantryItems(req, res) {
+export async function getAllPantryItems(req: Request, res: Response): Promise<void> {
     try {
         const allPantryItems = await PantryItem.find({ user: req.userId });
         res.status(200).json({ message: 'Items retrieved successfully', items: allPantryItems });
@@ -93,12 +102,13 @@ async function getAllPantryItems(req, res) {
     }
 }
 
-async function getPantryItemById(req, res) {
+export async function getPantryItemById(req: Request, res: Response): Promise<void> {
     try {
         const pantryItem = await PantryItem.findOne({ _id: req.params.id, user: req.userId });
 
         if (!pantryItem) {
-            return res.status(404).json({ message: 'Item not found' });
+            res.status(404).json({ message: 'Item not found' });
+            return;
         }
 
         res.status(200).json({
@@ -110,5 +120,3 @@ async function getPantryItemById(req, res) {
         res.status(500).json({ message: 'Server error while retrieving the item' });
     }
 }
-
-module.exports = { addPantryItem, updatePantryItem, deletePantryItem, getAllPantryItems, getPantryItemById };

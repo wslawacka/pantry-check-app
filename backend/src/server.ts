@@ -1,9 +1,9 @@
-const express = require('express');
-const cors = require('cors');
-const mongoose = require('mongoose');
-const dotenv = require('dotenv');
-const userRoutes = require('./routes/userRoutes');
-const pantryItemRoutes = require('./routes/pantryItemRoutes');
+import express from 'express';
+import cors from 'cors';
+import mongoose from 'mongoose';
+import dotenv from 'dotenv';
+import { userRoutes } from './routes/userRoutes';
+import { pantryRoutes } from './routes/pantryItemRoutes';
 
 // load environment variables
 dotenv.config();
@@ -16,10 +16,10 @@ app.use(express.json());
 
 // routes
 app.use('/api/users', userRoutes);
-app.use('/api/pantryItems', pantryItemRoutes);
+app.use('/api/pantryItems', pantryRoutes);
 
 // MongoDB connection
-mongoose.connect(process.env.MONGO_URI, {
+mongoose.connect(process.env.MONGO_URI as string, {
   ssl: true
 })
     .then(() => {

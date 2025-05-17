@@ -1,12 +1,14 @@
-const bcrypt = require('bcryptjs');
-const jwt = require('jsonwebtoken');
-const { validationResult } = require('express-validator');
-const User = require('../models/user');
+import { Request, Response } from 'express';
+import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
+import { validationResult } from 'express-validator';
+import { User } from '../models/user';
 
-async function registerUser(req, res) {
+export async function registerUser(req: Request, res: Response): Promise<void> {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-        return res.status(400).json({ errors: errors.array() });
+        res.status(400).json({ errors: errors.array() });
+        return;
     }
 
     try {
@@ -24,7 +26,8 @@ async function registerUser(req, res) {
         const savedUser = await newUser.save();
         if (!savedUser) {
             console.error("Failed to save user:", newUser);
-            return res.status(500).json({ message: 'Failed to register user' });
+            res.status(500).json({ message: 'Failed to register user' });
+            return;
         }
 
         res.status(201).json({
@@ -38,10 +41,11 @@ async function registerUser(req, res) {
     }
 };
 
-async function loginUser(req, res) {
+export async function loginUser(req: Request, res: Response): Promise<void> {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-        return res.status(400).json({ errors: errors.array() });
+        res.status(400).json({ errors: errors.array() });
+        return;
     }
 
     try {
@@ -49,17 +53,19 @@ async function loginUser(req, res) {
 
         const user = await User.findOne({ username: username.toLowerCase() });
         if (!user) {
-            return res.status(400).json({ message: 'Invalid username or password' });
+            res.status(400).json({ message: 'Invalid username or password' });
+            return;
         }
 
         const isMatch = await bcrypt.compare(password, user.passwordHash);
         if (!isMatch) {
-            return res.status(400).json({ message: 'Invalid username or password' });
+            res.status(400).json({ message: 'Invalid username or password' });
+            return;
         }
 
         const token = jwt.sign(
             { userId: user._id, username: user.username.toLowerCase() },
-            process.env.JWT_SECRET,
+            process.env.JWT_SECRET as string,
             { expiresIn: '1h' }
         );
 
@@ -70,8 +76,3 @@ async function loginUser(req, res) {
         res.status(500).json({ message: 'Server error during login' });
     }
 }
-
-module.exports = {
-    registerUser,
-    loginUser
-};

@@ -1,16 +1,16 @@
-const { body } = require('express-validator');
-const User = require('../models/user');
+import { body } from 'express-validator';
+import { User } from '../models/user';
 
 const usernameRegex = /^[a-zA-Z0-9_]+$/;
 
-const registerValidation = [
+export const registerValidation = [
     body('username')
         .trim()
         .notEmpty().withMessage('Username is required')
         .isLength({ min: 3 }).withMessage('Username must be at least 3 characters long')
         .isLength({ max: 20 }).withMessage('Username must be at most 20 characters long')
         .matches(usernameRegex).withMessage('Username can only contain letters, numbers and underscores')
-        .custom(async (username) => {
+        .custom(async (username: string) => {
             const existingUser = await User.findOne({ username: username.toLowerCase() });
             if (existingUser) {
                 throw new Error('Username already taken');
@@ -21,7 +21,7 @@ const registerValidation = [
         .normalizeEmail()
         .notEmpty().withMessage('Email is required')
         .isEmail().withMessage('Invalid email format')
-        .custom(async (email) => {
+        .custom(async (email: string) => {
             const existingUser = await User.findOne({ email });
             if (existingUser) {
                 throw new Error('Email already registered');
@@ -40,11 +40,11 @@ const registerValidation = [
 
 ];
 
-const loginValidation = [
+export const loginValidation = [
     body('username')
         .trim()
         .notEmpty().withMessage('Username is required')
-        .custom(async (username) => {
+        .custom(async (username: string) => {
             const existingUser = await User.findOne({ username: username.toLowerCase() });
             if (!existingUser) {
                 throw new Error('User does not exist');
@@ -53,8 +53,3 @@ const loginValidation = [
     body('password')
         .notEmpty().withMessage('Password is required')
 ];
-
-module.exports = {
-    registerValidation,
-    loginValidation
-};

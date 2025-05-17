@@ -1,8 +1,9 @@
-const mongoose = require('mongoose');
+import { Schema, model, Types } from 'mongoose';
+import { IPantryItem } from '../../types/pantry';
 
-const pantryItemSchema = new mongoose.Schema({
+const pantryItemSchema = new Schema<IPantryItem>({
     user: {
-        type: mongoose.Schema.Types.ObjectId,
+        type: Schema.Types.ObjectId,
         ref: 'User',
         required: true
     },
@@ -20,7 +21,7 @@ const pantryItemSchema = new mongoose.Schema({
         enum: ['dairy', 'grains', 'meat', 'vegetables', 'fruits', 'beverages', 'other']
     },
     expiryDate: {
-        type: Date,
+        type: String,
         required: true
     },
     quantity: {
@@ -35,5 +36,4 @@ const pantryItemSchema = new mongoose.Schema({
 
 });
 
-const PantryItem = mongoose.model('PantryItem', pantryItemSchema);
-module.exports = PantryItem;
+export const PantryItem = model<IPantryItem>('PantryItem', pantryItemSchema);
