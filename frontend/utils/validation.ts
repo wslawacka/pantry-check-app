@@ -1,7 +1,7 @@
 const usernameRegex = /^[a-zA-Z0-9_]+$/;
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-export function validateUsername(username) {
+export function validateUsername(username: string) {
     if (!username) return 'Username is required';
     if (username.length < 3) return 'Username must be at least 3 characters long';
     if (username.length > 20) return 'Username must be at most 20 characters long';
@@ -9,13 +9,13 @@ export function validateUsername(username) {
     return null;
 }
 
-export function validateEmail(email) {
+export function validateEmail(email: string) {
     if (!email) return 'Email is required';
     if (!emailRegex.test(email)) return 'Invalid email format';
     return null;
 }
 
-export function validatePassword(password) {
+export function validatePassword(password: string) {
     if (!password) return 'Password is required';
     if (password.length < 8) return 'Password must be at least 8 characters long';
     if (!/[A-Z]/.test(password)) return 'Password must include uppercase letter';
@@ -25,12 +25,12 @@ export function validatePassword(password) {
     return null;
 }
 
-export function validateLoginUsername(username) {
+export function validateLoginUsername(username: string) {
     if (!username) return 'Username is required';
     return null;
 }
 
-export function validateLoginPassword(password) {
+export function validateLoginPassword(password: string) {
     if (!password) return 'Password is required';
     return null;
 }
