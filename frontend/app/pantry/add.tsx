@@ -23,7 +23,7 @@ export default function AddPantryItem() {
 
     const handleAdd = async () => {
         try {
-            await addPantryItem({ name, category, expiryDate: expiryDate.split('T')[0], quantity, ...barcode? { barcode } : {} });
+            await addPantryItem({ name, category: category.toLowerCase(), expiryDate: expiryDate.split('T')[0], quantity, ...barcode? { barcode } : {} });
             router.replace('/pantry');
         } catch(error) {
             Alert.alert(

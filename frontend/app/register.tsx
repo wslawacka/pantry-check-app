@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { View, Text, TextInput, StyleSheet, Alert, Pressable } from 'react-native';
 import { useRouter } from 'expo-router';
 import { registerUser } from '../api/auth';
-import { validateUsername, validateEmail, validatePassword } from '../utils/validation';
+import { validateUsername, validateEmail, validatePassword } from '../utils/userValidation';
 import colors from '../styles/colors';
 
 export default function Register() {

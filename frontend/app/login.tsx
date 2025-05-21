@@ -3,7 +3,7 @@ import { View, Text, TextInput, Alert, StyleSheet, Pressable } from 'react-nativ
 import * as SecureStore from 'expo-secure-store';
 import { useRouter } from 'expo-router';
 import { loginUser } from '../api/auth';
-import { validateLoginUsername, validateLoginPassword } from '../utils/validation';
+import { validateLoginUsername, validateLoginPassword } from '../utils/userValidation';
 import colors from '../styles/colors';
 
 export default function Login() {
