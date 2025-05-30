@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { View, ActivityIndicator, TextInput, Text, Pressable, StyleSheet, Alert } from "react-native";
 import DateTimePicker from '@react-native-community/datetimepicker'
 import { useRouter } from 'expo-router';
+import { validateName, validateCategory, validateExpiryDate, validateQuantity, validateBarcode } from '../../utils/pantryItemValidation';
 import { useAuthGuard } from "../../hooks/useAuthGuard";
 import { addPantryItem } from '../../api/pantry';
 import colors from '../../styles/colors';
@@ -12,6 +13,7 @@ export default function AddPantryItem() {
     const [expiryDate, setExpiryDate] = useState(new Date().toISOString());
     const [quantity, setQuantity] = useState(0);
     const [barcode, setBarcode] = useState('');
+    const [errors, setErrors] = useState<{ name?: string, category?: string, expiryDate?: string, quantity?: string, barcode?: string }>({});
     const loading = useAuthGuard();
     const router = useRouter();
 
@@ -22,6 +24,25 @@ export default function AddPantryItem() {
     );
 
     const handleAdd = async () => {
+
+        const nameError = validateName(name);
+        const categoryError = validateCategory(category);
+        const expiryDateError = validateExpiryDate(expiryDate);
+        const quantityError = validateQuantity(quantity);
+        const barcodeError = validateBarcode(barcode);
+
+        if (nameError || categoryError || expiryDateError || quantityError || barcodeError) {
+            setErrors({
+                name: nameError,
+                category: categoryError,
+                expiryDate: expiryDateError,
+                quantity: quantityError,
+                barcode: barcodeError
+            });
+            return;
+        }
+        setErrors({});
+
         try {
             await addPantryItem({ name, category: category.toLowerCase(), expiryDate: expiryDate.split('T')[0], quantity, ...barcode? { barcode } : {} });
             router.replace('/pantry');
@@ -42,6 +63,7 @@ export default function AddPantryItem() {
                 autoCapitalize='none'
                 style={styles.input}
             />
+            {errors.name && <Text style={styles.error}>{errors.name}</Text>}
             <TextInput
                 placeholder='Category'
                 value={category}
@@ -49,6 +71,7 @@ export default function AddPantryItem() {
                 autoCapitalize='none'
                 style={styles.input}
             />
+            {errors.category && <Text style={styles.error}>{errors.category}</Text>}
             <View style={styles.dateRow}>
                 <Text style={styles.dateLabel}>Expiry date:</Text>
                 <DateTimePicker
@@ -64,6 +87,7 @@ export default function AddPantryItem() {
                 maximumDate={new Date(2050, 1, 1)}
             />
             </View>
+            {errors.expiryDate && <Text style={styles.error}>{errors.expiryDate}</Text>}
             <TextInput
                 placeholder='Quantity'
                 keyboardType='numeric'
@@ -71,6 +95,7 @@ export default function AddPantryItem() {
                 onChangeText={(text) => setQuantity(Number(text))}
                 style={styles.input}
             />
+            {errors.quantity && <Text style={styles.error}>{errors.quantity}</Text>}
             <TextInput
                 placeholder='Barcode'
                 value={barcode}
@@ -78,6 +103,7 @@ export default function AddPantryItem() {
                 autoCapitalize='none'
                 style={styles.input}
             />
+            {errors.barcode && <Text style={styles.error}>{errors.barcode}</Text>}
             <Pressable
                 style={styles.button}
                 onPress={handleAdd}
@@ -104,6 +130,10 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         borderColor: 'rgba(0, 0, 0, 0.4)',
         borderRadius: 4
+    },
+    error: {
+        color: colors.error,
+        fontSize: 16
     },
     button: {
         backgroundColor: colors.primary,
