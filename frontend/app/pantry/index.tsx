@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { View, Text, FlatList, ActivityIndicator, StyleSheet, Button, Alert } from 'react-native';
+import { View, Text, FlatList, ActivityIndicator, StyleSheet, Pressable, Alert } from 'react-native';
 import { useAuthGuard } from "../../hooks/useAuthGuard";
 import colors from "../../styles/colors";
 import { router } from "expo-router";
@@ -53,7 +53,15 @@ export default function PantryList() {
                 )}
                 contentContainerStyle={{ alignItems: 'center', gap: 10 }}
             />
-            <Button title='Go to Add' onPress={() => router.replace('/pantry/add')}></Button>
+            <Pressable
+                style={({ pressed }) => [
+                    styles.button,
+                    pressed && styles.buttonPressed
+                ]}
+                onPress={() => router.replace('/pantry/add')}
+            >
+                <Text style={styles.buttonText}>Add Item</Text>
+            </Pressable>
         </View>
     );
 }
@@ -75,5 +83,20 @@ const styles = StyleSheet.create({
         padding: 16,
         borderBottomWidth: 1,
         borderColor: colors.primary
+    },
+    buttonText: {
+        fontSize: 18
+    },
+    buttonPressed: {
+        backgroundColor: colors.primaryLight
+    },
+    button: {
+        backgroundColor: colors.primary,
+        paddingHorizontal: 20,
+        paddingVertical: 8,
+        borderRadius: 4,
+        marginTop: 10,
+        marginBottom: 30,
+        alignSelf: 'center'
     }
 });

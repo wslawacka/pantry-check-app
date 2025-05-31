@@ -46,10 +46,9 @@ export default function AddPantryItem() {
         setErrors({});
 
         const item = { name, category: category.toLowerCase(), expiryDate: expiryDate.split('T')[0], quantity,  ...(barcode ? { barcode } : {}) };
-    
+
         try {
             const state = await NetInfo.fetch();
-            console.log('Network state:', state);
             if (state.isConnected) {
                 await addPantryItem(item);
             } else {
