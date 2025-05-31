@@ -6,6 +6,7 @@ import { router } from "expo-router";
 import { getPantryItems, deletePantryItem } from "../../api/pantry";
 import { PantryItem } from "../../types/pantry";
 import { getCachedPantryItems, cachePantryItems, queueOfflineAction } from "../../offline/sync";
+import * as SecureStore from 'expo-secure-store';
 import NetInfo from '@react-native-community/netinfo';
 
 export default function PantryList() {
@@ -57,16 +58,33 @@ export default function PantryList() {
                 error.response?.data?.message || 'Failed to delete item'
             );
         }
-    }
+    };
+
+    const handleLogout = async () => {
+        await SecureStore.deleteItemAsync('token');
+        router.replace('/login');
+    };
 
 
     if (loadingAuth || loading) return <ActivityIndicator/>;
 
     return (
         <View style={styles.container}>
+            <Pressable
+                style={({ pressed }) => [
+                    styles.logoutButton,
+                    pressed && styles.logoutButtonPressed
+                ]}
+                onPress={handleLogout}
+            >
+                <Text style={styles.logoutButtonText}>Log Out</Text>
+            </Pressable>
             <Text style={styles.title}>Your Pantry</Text>
             <FlatList
                 data={items}
+                ListEmptyComponent={
+                    <Text style={styles.emptyText}>No items in your pantry yet!</Text>
+                }
                 keyExtractor={item => item._id}
                 renderItem={({ item }) => (
                     <View style={styles.itemRow}>
@@ -144,5 +162,20 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
         width: '100%',
         maxWidth: 300,
+    },
+    emptyText: {
+        fontSize: 20,
+        marginTop: 16
+    },
+    logoutButton: {
+        alignSelf: 'flex-end',
+        marginBottom: 30
+    },
+    logoutButtonPressed: {
+        opacity: 0.6
+    },
+    logoutButtonText: {
+        fontSize: 18,
+        textDecorationLine: 'underline'
     }
 });
