@@ -1,8 +1,6 @@
 import { PantryItem } from "./pantry";
 
-export type SyncActionType = 'ADD' | 'DELETE' | 'UPDATE';
-
-export interface SyncAction {
-    type: SyncActionType,
-    item: PantryItem
-}
+export type SyncAction =
+  | { type: 'ADD'; item: PantryItem }
+  | { type: 'UPDATE'; item: PantryItem }
+  | { type: 'DELETE'; item: { _id: string } };

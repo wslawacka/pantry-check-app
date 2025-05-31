@@ -3,9 +3,10 @@ import { View, Text, FlatList, ActivityIndicator, StyleSheet, Pressable, Alert }
 import { useAuthGuard } from "../../hooks/useAuthGuard";
 import colors from "../../styles/colors";
 import { router } from "expo-router";
-import { getPantryItems } from "../../api/pantry";
+import { getPantryItems, deletePantryItem } from "../../api/pantry";
 import { PantryItem } from "../../types/pantry";
-import { getCachedPantryItems, cachePantryItems } from "../../offline/sync";
+import { getCachedPantryItems, cachePantryItems, queueOfflineAction } from "../../offline/sync";
+import NetInfo from '@react-native-community/netinfo';
 
 export default function PantryList() {
     const loadingAuth = useAuthGuard();
@@ -37,7 +38,26 @@ export default function PantryList() {
     fetchData();
 
     return () => { isMounted = false };
-}, []);
+    }, []);
+
+    const handleDelete = async (id: string) => {
+        const prevItems = items;
+        setItems(prev => prev.filter(item => item._id !== id));
+        try {
+            const state = await NetInfo.fetch();
+            if (state.isConnected) {
+                await deletePantryItem(id);
+            } else {
+                await queueOfflineAction({ type: 'DELETE', item: { _id: id } });
+            }
+        } catch(error) {
+            setItems(prevItems);
+            Alert.alert(
+                'Error',
+                error.response?.data?.message || 'Failed to delete item'
+            );
+        }
+    }
 
 
     if (loadingAuth || loading) return <ActivityIndicator/>;
@@ -49,7 +69,15 @@ export default function PantryList() {
                 data={items}
                 keyExtractor={item => item._id}
                 renderItem={({ item }) => (
-                    <Text style={styles.item}>{item.name} ({item.quantity})</Text>
+                    <View style={styles.itemRow}>
+                        <Text style={styles.item}>{item.name} ({item.quantity})</Text>
+                        <Pressable
+                            style={styles.deleteButton}
+                            onPress={() => handleDelete(item._id)}
+                        >
+                            <Text style={styles.deleteButtonText}>Delete</Text>
+                        </Pressable>
+                    </View>
                 )}
                 contentContainerStyle={{ alignItems: 'center', gap: 10 }}
             />
@@ -98,5 +126,23 @@ const styles = StyleSheet.create({
         marginTop: 10,
         marginBottom: 30,
         alignSelf: 'center'
+    },
+    deleteButton: {
+        backgroundColor: colors.error,
+        paddingHorizontal: 12,
+        paddingVertical: 6,
+        borderRadius: 4,
+        marginLeft: 12,
+    },
+    deleteButtonText: {
+        color: '#fff',
+        fontWeight: 'bold',
+    },
+    itemRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        width: '100%',
+        maxWidth: 300,
     }
 });
