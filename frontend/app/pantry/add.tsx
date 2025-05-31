@@ -5,6 +5,9 @@ import { useRouter } from 'expo-router';
 import { validateName, validateCategory, validateExpiryDate, validateQuantity, validateBarcode } from '../../utils/pantryItemValidation';
 import { useAuthGuard } from "../../hooks/useAuthGuard";
 import { addPantryItem } from '../../api/pantry';
+import NetInfo from '@react-native-community/netinfo';
+import { queueOfflineAction } from '../../offline/sync';
+import { v4 as uuidv4 } from 'uuid';
 import colors from '../../styles/colors';
 
 export default function AddPantryItem() {
@@ -24,7 +27,6 @@ export default function AddPantryItem() {
     );
 
     const handleAdd = async () => {
-
         const nameError = validateName(name);
         const categoryError = validateCategory(category);
         const expiryDateError = validateExpiryDate(expiryDate);
@@ -43,8 +45,16 @@ export default function AddPantryItem() {
         }
         setErrors({});
 
+        const item = { name, category: category.toLowerCase(), expiryDate: expiryDate.split('T')[0], quantity,  ...(barcode ? { barcode } : {}) };
+    
         try {
-            await addPantryItem({ name, category: category.toLowerCase(), expiryDate: expiryDate.split('T')[0], quantity, ...barcode? { barcode } : {} });
+            const state = await NetInfo.fetch();
+            console.log('Network state:', state);
+            if (state.isConnected) {
+                await addPantryItem(item);
+            } else {
+                await queueOfflineAction({ type: 'ADD', item: { _id: uuidv4(), ...item } });
+            }
             router.replace('/pantry');
         } catch(error) {
             Alert.alert(
@@ -110,6 +120,11 @@ export default function AddPantryItem() {
             >
                 <Text style={styles.buttonText}>Add Item</Text>
             </Pressable>
+            <Pressable
+                onPress={() => router.replace('/pantry')}
+            >
+                <Text style={styles.backButton}>Go to List</Text>
+            </Pressable>
         </View>
     );
 }
@@ -144,6 +159,11 @@ const styles = StyleSheet.create({
     },
     buttonText: {
         fontSize: 18
+    },
+    backButton: {
+        fontSize: 18,
+        marginTop: 14,
+        textDecorationLine: 'underline'
     },
     dateRow: {
         flexDirection: 'row',

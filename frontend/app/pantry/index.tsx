@@ -5,6 +5,7 @@ import colors from "../../styles/colors";
 import { router } from "expo-router";
 import { getPantryItems } from "../../api/pantry";
 import { PantryItem } from "../../types/pantry";
+import { getCachedPantryItems, cachePantryItems } from "../../offline/sync";
 
 export default function PantryList() {
     const loadingAuth = useAuthGuard();
@@ -12,18 +13,32 @@ export default function PantryList() {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-       getPantryItems()
-        .then(res => {
-            setItems(res.data.items);
-        })
-        .catch(err => {
+    let isMounted = true;
+
+    async function fetchData() {
+        try {
+            const res = await getPantryItems();
+            if (isMounted) {
+                setItems(res.data.items);
+                await cachePantryItems(res.data.items);
+            }
+        } catch (err: any) {
             console.log('Error fetching pantry items:', err);
-            Alert.alert('Error', 'Failed to load pantry items');
-        })
-        .finally(
-            () => setLoading(false)
-        );
-    }, []);
+            if (err.response?.status !== 401) {
+                const cached = await getCachedPantryItems();
+                if (isMounted) setItems(cached);
+                Alert.alert('Error', 'Failed to load pantry items (showing offline data if available)');
+            }
+        } finally {
+            if (isMounted) setLoading(false);
+        }
+    }
+
+    fetchData();
+
+    return () => { isMounted = false };
+}, []);
+
 
     if (loadingAuth || loading) return <ActivityIndicator/>;
 

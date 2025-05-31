@@ -7,11 +7,16 @@ export function useAuthGuard() {
     const router = useRouter();
 
     useEffect(() => {
-        SecureStore.getItemAsync('token').then(token => {
-            if (!token) router.replace('/login');
-            setLoading(false);
-        })
+        let isMounted = true;
+        SecureStore.getItemAsync('token')
+            .then(token => {
+                if (!token) router.replace('/login');
+            })
+            .catch(() => router.replace('/login'))
+            .finally(() => { if (isMounted) setLoading(false); });
+        return () => { isMounted = false; };
     }, []);
+
 
     return loading;
 }

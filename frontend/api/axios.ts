@@ -28,7 +28,8 @@ api.interceptors.response.use(
     async (error) => {
         if (error.response && error.response.status === 401) {
             // remove token if invalid/expired
-            await SecureStore.deleteItemAsync('token');
+            const token = await SecureStore.getItemAsync('token');
+            if (token) await SecureStore.deleteItemAsync('token');
             // redirect to login
             router.replace('/login');
         }
