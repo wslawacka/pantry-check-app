@@ -4,6 +4,7 @@ import { useLocalSearchParams, router } from 'expo-router';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import NetInfo from '@react-native-community/netinfo';
 import { getPantryItem, updatePantryItem } from '../../../api/pantry';
+import { validateName, validateCategory, validateExpiryDate, validateQuantity, validateBarcode } from '../../../utils/pantryItemValidation';
 import { getCachedPantryItems, queueOfflineAction, cachePantryItems } from '../../../offline/sync';
 import { PantryItem } from '../../../types/pantry';
 import colors from '../../../styles/colors';
@@ -17,8 +18,9 @@ export default function EditPantryItem() {
     const [name, setName] = useState('');
     const [category, setCategory] = useState('');
     const [expiryDate, setExpiryDate] = useState('');
-    const [quantity, setQuantity] = useState('');
+    const [quantity, setQuantity] = useState(1);
     const [barcode, setBarcode] = useState('');
+    const [errors, setErrors] = useState<{ name?: string, category?: string, expiryDate?: string, quantity?: string, barcode?: string }>({});
 
     useEffect(() => {
         let isMounted = true;
@@ -44,13 +46,32 @@ export default function EditPantryItem() {
             setName(item.name);
             setCategory(item.category);
             setExpiryDate(item.expiryDate);
-            setQuantity(item.quantity.toString());
+            setQuantity(item.quantity);
             setBarcode(item.barcode || '');
         }
     }, [item]);
 
     const handleSave = async () => {
         if (!item) return;
+
+        const nameError = validateName(name);
+        const categoryError = validateCategory(category);
+        const expiryDateError = validateExpiryDate(expiryDate);
+        const quantityError = validateQuantity(quantity);
+        const barcodeError = validateBarcode(barcode);
+
+        if (nameError || categoryError || expiryDateError || quantityError || barcodeError) {
+            setErrors({
+                name: nameError,
+                category: categoryError,
+                expiryDate: expiryDateError,
+                quantity: quantityError,
+                barcode: barcodeError
+            });
+            return;
+        }
+
+        setErrors({});
         setSaving(true);
         const updated: PantryItem = {
             ...item,
@@ -91,6 +112,7 @@ export default function EditPantryItem() {
                 placeholder='Name'
                 autoCapitalize='none'
             />
+            {errors.name && <Text style={styles.error}>{errors.name}</Text>}
             <TextInput
                 style={styles.input}
                 value={category}
@@ -98,6 +120,7 @@ export default function EditPantryItem() {
                 placeholder='Category'
                 autoCapitalize='none'
             />
+            {errors.category && <Text style={styles.error}>{errors.category}</Text>}
             <View style={styles.dateRow}>
                 <Text style={styles.dateLabel}>Expiry date:</Text>
                 <DateTimePicker
@@ -113,13 +136,15 @@ export default function EditPantryItem() {
                     maximumDate={new Date(2050, 1, 1)}
                 />
             </View>
+            {errors.expiryDate && <Text style={styles.error}>{errors.expiryDate}</Text>}
             <TextInput
                 style={styles.input}
-                value={quantity}
-                onChangeText={setQuantity}
                 placeholder='Quantity'
                 keyboardType='numeric'
+                value={quantity.toString()}
+                onChangeText={(text) => setQuantity(Number(text))}
             />
+            {errors.quantity && <Text style={styles.error}>{errors.quantity}</Text>}
             <TextInput
                 style={styles.input}
                 value={barcode}
@@ -127,6 +152,7 @@ export default function EditPantryItem() {
                 placeholder='Barcode (optional)'
                 autoCapitalize='none'
             />
+            {errors.barcode && <Text style={styles.error}>{errors.barcode}</Text>}
             <Pressable
                 style={({ pressed }) => [
                     styles.button,
@@ -191,8 +217,8 @@ const styles = StyleSheet.create({
         alignItems: 'center'
     },
     cancelButtonText: {
-        color: colors.error,
-        fontSize: 18
+        fontSize: 18,
+        textDecorationLine: 'underline'
     },
     cancelButtonPressed: {
         opacity: 0.6
@@ -200,7 +226,8 @@ const styles = StyleSheet.create({
     error: {
         color: colors.error,
         fontSize: 18,
-        textAlign: 'center'
+        textAlign: 'center',
+        marginBottom: 20
     },
     dateRow: {
         flexDirection: 'row',
