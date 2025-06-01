@@ -6,8 +6,7 @@ import { validateName, validateCategory, validateExpiryDate, validateQuantity, v
 import { useAuthGuard } from "../../hooks/useAuthGuard";
 import { addPantryItem } from '../../api/pantry';
 import NetInfo from '@react-native-community/netinfo';
-import { queueOfflineAction } from '../../offline/sync';
-import { v4 as uuidv4 } from 'uuid';
+import { cachePantryItems, getCachedPantryItems, queueOfflineAction } from '../../offline/sync';
 import colors from '../../styles/colors';
 
 export default function AddPantryItem() {
@@ -49,13 +48,16 @@ export default function AddPantryItem() {
 
         try {
             const state = await NetInfo.fetch();
-            if (state.isConnected) {
+            if (state.isConnected && state.isInternetReachable) {
                 await addPantryItem(item);
             } else {
-                await queueOfflineAction({ type: 'ADD', item: { _id: uuidv4(), ...item } });
+                await queueOfflineAction({ type: 'ADD', item });
+                const cached = await getCachedPantryItems();
+                await cachePantryItems([...cached, item]);
+                Alert.alert('Offline', 'Item added and will sync when you are back online.');
             }
             router.replace('/pantry');
-        } catch(error) {
+        } catch(error: any) {
             Alert.alert(
                 'Error',
                 error.response?.data?.message || 'Failed to add item'

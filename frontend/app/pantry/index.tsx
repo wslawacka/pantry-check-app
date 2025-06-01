@@ -5,7 +5,7 @@ import colors from "../../styles/colors";
 import { router } from "expo-router";
 import { getPantryItems, deletePantryItem } from "../../api/pantry";
 import { PantryItem } from "../../types/pantry";
-import { getCachedPantryItems, cachePantryItems, queueOfflineAction } from "../../offline/sync";
+import { getCachedPantryItems, cachePantryItems, queueOfflineAction, syncWithBackend } from "../../offline/sync";
 import * as SecureStore from 'expo-secure-store';
 import NetInfo from '@react-native-community/netinfo';
 
@@ -19,16 +19,16 @@ export default function PantryList() {
 
     async function fetchData() {
         try {
+            const cached = await getCachedPantryItems();
+            if (isMounted) setItems(cached);
             const res = await getPantryItems();
             if (isMounted) {
                 setItems(res.data.items);
                 await cachePantryItems(res.data.items);
             }
-        } catch (err: any) {
+        }  catch (err: any) {
             console.log('Error fetching pantry items:', err);
             if (err.response?.status !== 401) {
-                const cached = await getCachedPantryItems();
-                if (isMounted) setItems(cached);
                 Alert.alert('Error', 'Failed to load pantry items (showing offline data if available)');
             }
         } finally {
@@ -52,11 +52,17 @@ export default function PantryList() {
                 await queueOfflineAction({ type: 'DELETE', item: { _id: id } });
             }
         } catch(error) {
+            if (
+                error.code === 'ERR_NETWORK' ||
+                error.message === 'Network Error' ||
+                !error.response
+            ) {
+            await queueOfflineAction({ type: 'DELETE', item: { _id: id } });
+            Alert.alert('Offline', 'Delete will be synced when you are back online.');
+        } else {
             setItems(prevItems);
-            Alert.alert(
-                'Error',
-                error.response?.data?.message || 'Failed to delete item'
-            );
+            Alert.alert('Error', error.response?.data?.message || 'Failed to delete item');
+        }
         }
     };
 
@@ -132,6 +138,12 @@ export default function PantryList() {
             >
                 <Text style={styles.buttonText}>Add Item</Text>
             </Pressable>
+
+
+            <Pressable onPress={syncWithBackend}>
+                <Text>Sync Now</Text>
+            </Pressable>
+
         </View>
     );
 }
