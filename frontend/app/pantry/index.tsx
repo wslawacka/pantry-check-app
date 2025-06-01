@@ -27,7 +27,6 @@ export default function PantryList() {
                 await cachePantryItems(res.data.items);
             }
         }  catch (err: any) {
-            console.log('Error fetching pantry items:', err);
             if (err.response?.status !== 401) {
                 Alert.alert('Error', 'Failed to load pantry items (showing offline data if available)');
             }
@@ -140,7 +139,14 @@ export default function PantryList() {
             </Pressable>
 
 
-            <Pressable onPress={syncWithBackend}>
+            <Pressable
+                style={({ pressed }) => [
+                    styles.button,
+                    styles.syncButton,
+                    pressed && styles.syncButtonPressed
+                ]}
+                onPress={syncWithBackend}
+            >
                 <Text>Sync Now</Text>
             </Pressable>
 
@@ -182,7 +188,7 @@ const styles = StyleSheet.create({
         paddingHorizontal: 20,
         paddingVertical: 8,
         borderRadius: 4,
-        marginTop: 40,
+        marginTop: 10,
         marginBottom: 30,
         alignSelf: 'center'
     },
@@ -238,5 +244,11 @@ const styles = StyleSheet.create({
     buttonsContainer: {
         display: 'flex',
         flexDirection: 'row'
+    },
+    syncButton: {
+        backgroundColor: colors.accent
+    },
+    syncButtonPressed: {
+        opacity: 0.6
     }
 });

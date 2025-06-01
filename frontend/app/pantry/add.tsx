@@ -131,8 +131,8 @@ export default function AddPantryItem() {
                     <Text>📷</Text>
                 </Pressable>
             </View>
-
             {errors.barcode && <Text style={styles.error}>{errors.barcode}</Text>}
+
             <Pressable
                 style={styles.button}
                 onPress={handleAdd}
