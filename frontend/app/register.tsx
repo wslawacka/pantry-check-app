@@ -47,6 +47,7 @@ export default function Register() {
             <Text style={styles.title}>Register</Text>
             <TextInput
                 placeholder='Username'
+                placeholderTextColor='#6e6e6e'
                 value={username}
                 onChangeText={setUsername}
                 autoCapitalize='none'
@@ -56,6 +57,7 @@ export default function Register() {
             {errors.username && <Text style={styles.error}>{errors.username}</Text>}
             <TextInput
                 placeholder='Email'
+                placeholderTextColor='#6e6e6e'
                 value={email}
                 onChangeText={setEmail}
                 autoCapitalize='none'
@@ -65,6 +67,7 @@ export default function Register() {
             {errors.email && <Text style={styles.error}>{errors.email}</Text>}
             <TextInput
                 placeholder='Password'
+                placeholderTextColor='#6e6e6e'
                 value={password}
                 onChangeText={setPassword}
                 autoCapitalize='none'

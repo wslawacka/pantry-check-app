@@ -51,6 +51,7 @@ export default function Login() {
             <Text style={styles.title}>Login</Text>
             <TextInput
                 placeholder='Username'
+                placeholderTextColor='#6e6e6e'
                 value={username}
                 onChangeText={setUsername}
                 autoCapitalize='none'
@@ -60,6 +61,7 @@ export default function Login() {
             {errors.username && <Text style={styles.error}>{errors.username}</Text>}
             <TextInput
                 placeholder='Password'
+                placeholderTextColor='#6e6e6e'
                 value={password}
                 onChangeText={setPassword}
                 autoCapitalize='none'

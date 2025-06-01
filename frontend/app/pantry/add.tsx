@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { View, ActivityIndicator, TextInput, Text, Pressable, StyleSheet, Alert } from "react-native";
+import { View, ActivityIndicator, TextInput, Text, Pressable, StyleSheet, Alert, Keyboard } from "react-native";
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { useRouter } from 'expo-router';
 import { validateName, validateCategory, validateExpiryDate, validateQuantity, validateBarcode } from '../../utils/pantryItemValidation';
@@ -7,6 +7,7 @@ import { useAuthGuard } from "../../hooks/useAuthGuard";
 import { addPantryItem } from '../../api/pantry';
 import NetInfo from '@react-native-community/netinfo';
 import { cachePantryItems, getCachedPantryItems, queueOfflineAction } from '../../offline/sync';
+import BarcodeScanner from '../../components/BarcodeScanner';
 import colors from '../../styles/colors';
 
 export default function AddPantryItem() {
@@ -16,6 +17,7 @@ export default function AddPantryItem() {
     const [quantity, setQuantity] = useState(1);
     const [barcode, setBarcode] = useState('');
     const [errors, setErrors] = useState<{ name?: string, category?: string, expiryDate?: string, quantity?: string, barcode?: string }>({});
+    const [showScanner, setShowScanner] = useState(false);
     const loading = useAuthGuard();
     const router = useRouter();
 
@@ -69,6 +71,7 @@ export default function AddPantryItem() {
         <View style={styles.container}>
             <TextInput
                 placeholder='Name'
+                placeholderTextColor='#6e6e6e'
                 value={name}
                 onChangeText={setName}
                 autoCapitalize='none'
@@ -77,6 +80,7 @@ export default function AddPantryItem() {
             {errors.name && <Text style={styles.error}>{errors.name}</Text>}
             <TextInput
                 placeholder='Category'
+                placeholderTextColor='#6e6e6e'
                 value={category}
                 onChangeText={setCategory}
                 autoCapitalize='none'
@@ -101,19 +105,33 @@ export default function AddPantryItem() {
             {errors.expiryDate && <Text style={styles.error}>{errors.expiryDate}</Text>}
             <TextInput
                 placeholder='Quantity'
+                placeholderTextColor='#6e6e6e'
                 keyboardType='numeric'
                 value={quantity.toString()}
                 onChangeText={(text) => setQuantity(Number(text))}
                 style={styles.input}
             />
             {errors.quantity && <Text style={styles.error}>{errors.quantity}</Text>}
-            <TextInput
-                placeholder='Barcode (optional)'
-                value={barcode}
-                onChangeText={setBarcode}
-                autoCapitalize='none'
-                style={styles.input}
-            />
+            <View style={styles.barcodeRow}>
+                <TextInput
+                    placeholder='Barcode (optional)'
+                    placeholderTextColor='#6e6e6e'
+                    value={barcode}
+                    onChangeText={setBarcode}
+                    autoCapitalize='none'
+                    style={[styles.input, { flex: 1 }]}
+                />
+                <Pressable
+                    style={{ marginLeft: 8, padding: 8, backgroundColor: colors.primaryLight, borderRadius: 4 }}
+                    onPress={() => {
+                        Keyboard.dismiss();
+                        setShowScanner(true);
+                    }}
+                >
+                    <Text>📷</Text>
+                </Pressable>
+            </View>
+
             {errors.barcode && <Text style={styles.error}>{errors.barcode}</Text>}
             <Pressable
                 style={styles.button}
@@ -126,6 +144,20 @@ export default function AddPantryItem() {
             >
                 <Text style={styles.backButton}>Go to List</Text>
             </Pressable>
+
+
+            {showScanner && (
+                <View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, zIndex: 99, backgroundColor: '#000' }}>
+                    <BarcodeScanner
+                        onScan={data => {
+                        setBarcode(data);
+                        setShowScanner(false);
+                        }}
+                        onClose={() => setShowScanner(false)}
+                />
+                </View>
+            )}
+
         </View>
     );
 }
@@ -174,5 +206,10 @@ const styles = StyleSheet.create({
     dateLabel: {
         fontSize: 18,
         opacity: 0.8
+    },
+    barcodeRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        width: 220
     }
 });

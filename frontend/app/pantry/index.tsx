@@ -205,7 +205,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'space-between',
         width: '100%',
-        maxWidth: 300,
+        maxWidth: 260,
     },
     emptyText: {
         fontSize: 20,
