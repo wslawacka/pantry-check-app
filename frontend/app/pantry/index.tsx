@@ -88,7 +88,11 @@ export default function PantryList() {
                 keyExtractor={item => item._id}
                 renderItem={({ item }) => (
                     <View style={styles.itemRow}>
-                        <Text style={styles.item}>{item.name} ({item.quantity})</Text>
+                        <Pressable
+                            onPress={() => router.push(`/pantry/${item._id}`)}
+                        >
+                            <Text style={styles.item}>{item.name} ({item.quantity})</Text>
+                        </Pressable>
                         <Pressable
                             style={styles.deleteButton}
                             onPress={() => handleDelete(item._id)}
