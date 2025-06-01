@@ -88,17 +88,37 @@ export default function PantryList() {
                 keyExtractor={item => item._id}
                 renderItem={({ item }) => (
                     <View style={styles.itemRow}>
-                        <Pressable
-                            onPress={() => router.push(`/pantry/${item._id}`)}
-                        >
-                            <Text style={styles.item}>{item.name} ({item.quantity})</Text>
-                        </Pressable>
-                        <Pressable
-                            style={styles.deleteButton}
-                            onPress={() => handleDelete(item._id)}
-                        >
-                            <Text style={styles.deleteButtonText}>Delete</Text>
-                        </Pressable>
+                        <View style={styles.itemTextContainer}>
+                            <Pressable
+                                onPress={() => router.push(`/pantry/${item._id}`)}
+                            >
+                                <Text
+                                    style={styles.item}
+                                >
+                                    {item.name} ({item.quantity})
+                                </Text>
+                            </Pressable>
+                        </View>
+                        <View style={styles.buttonsContainer}>
+                            <Pressable
+                                style={({ pressed }) => [
+                                    styles.editButton,
+                                    pressed && styles.editButtonPressed
+                                ]}
+                                onPress={() => router.push(`/pantry/edit/${item._id}`)}
+                            >
+                                <Text style={styles.editButtonText}>Edit</Text>
+                            </Pressable>
+                            <Pressable
+                                style={({ pressed }) => [
+                                    styles.deleteButton,
+                                    pressed && styles.deleteButtonPressed
+                                ]}
+                                onPress={() => handleDelete(item._id)}
+                            >
+                                <Text style={styles.deleteButtonText}>Delete</Text>
+                            </Pressable>
+                        </View>
                     </View>
                 )}
                 contentContainerStyle={{ alignItems: 'center', gap: 10 }}
@@ -125,14 +145,19 @@ const styles = StyleSheet.create({
     title: {
         fontWeight: 'bold',
         textAlign: 'center',
-        fontSize: 22,
-        marginBottom: 12
+        fontSize: 24,
+        marginBottom: 16
+    },
+    itemTextContainer: {
+        flex: 1,
+        marginRight: 10,
     },
     item: {
         fontSize: 18,
         padding: 16,
         borderBottomWidth: 1,
-        borderColor: colors.primary
+        borderColor: colors.primary,
+        maxWidth: 150
     },
     buttonText: {
         fontSize: 18
@@ -145,7 +170,7 @@ const styles = StyleSheet.create({
         paddingHorizontal: 20,
         paddingVertical: 8,
         borderRadius: 4,
-        marginTop: 10,
+        marginTop: 40,
         marginBottom: 30,
         alignSelf: 'center'
     },
@@ -158,7 +183,10 @@ const styles = StyleSheet.create({
     },
     deleteButtonText: {
         color: '#fff',
-        fontWeight: 'bold',
+        fontSize: 16
+    },
+    deleteButtonPressed: {
+        opacity: 0.7
     },
     itemRow: {
         flexDirection: 'row',
@@ -181,5 +209,22 @@ const styles = StyleSheet.create({
     logoutButtonText: {
         fontSize: 18,
         textDecorationLine: 'underline'
+    },
+    editButton: {
+        backgroundColor: colors.primaryDark,
+        paddingHorizontal: 12,
+        paddingVertical: 6,
+        borderRadius: 4,
+        marginLeft: 12,
+    },
+    editButtonText: {
+        fontSize: 16
+    },
+    editButtonPressed: {
+        opacity: 0.7
+    },
+    buttonsContainer: {
+        display: 'flex',
+        flexDirection: 'row'
     }
 });

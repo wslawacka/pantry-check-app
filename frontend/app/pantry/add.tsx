@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { View, ActivityIndicator, TextInput, Text, Pressable, StyleSheet, Alert } from "react-native";
-import DateTimePicker from '@react-native-community/datetimepicker'
+import DateTimePicker from '@react-native-community/datetimepicker';
 import { useRouter } from 'expo-router';
 import { validateName, validateCategory, validateExpiryDate, validateQuantity, validateBarcode } from '../../utils/pantryItemValidation';
 import { useAuthGuard } from "../../hooks/useAuthGuard";
@@ -14,7 +14,7 @@ export default function AddPantryItem() {
     const [name, setName] = useState('');
     const [category, setCategory] = useState('');
     const [expiryDate, setExpiryDate] = useState(new Date().toISOString());
-    const [quantity, setQuantity] = useState(0);
+    const [quantity, setQuantity] = useState(1);
     const [barcode, setBarcode] = useState('');
     const [errors, setErrors] = useState<{ name?: string, category?: string, expiryDate?: string, quantity?: string, barcode?: string }>({});
     const loading = useAuthGuard();
@@ -106,7 +106,7 @@ export default function AddPantryItem() {
             />
             {errors.quantity && <Text style={styles.error}>{errors.quantity}</Text>}
             <TextInput
-                placeholder='Barcode'
+                placeholder='Barcode (optional)'
                 value={barcode}
                 onChangeText={setBarcode}
                 autoCapitalize='none'
@@ -166,7 +166,8 @@ const styles = StyleSheet.create({
     },
     dateRow: {
         flexDirection: 'row',
-        alignItems: 'center'
+        alignItems: 'center',
+        gap: 10
     },
     dateLabel: {
         fontSize: 18,
