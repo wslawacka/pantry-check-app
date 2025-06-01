@@ -18,6 +18,8 @@ export default function AddPantryItem() {
     const [barcode, setBarcode] = useState('');
     const [errors, setErrors] = useState<{ name?: string, category?: string, expiryDate?: string, quantity?: string, barcode?: string }>({});
     const [showScanner, setShowScanner] = useState(false);
+    const [showDatePicker, setShowDatePicker] = useState(false);
+
     const loading = useAuthGuard();
     const router = useRouter();
 
@@ -89,19 +91,29 @@ export default function AddPantryItem() {
             {errors.category && <Text style={styles.error}>{errors.category}</Text>}
             <View style={styles.dateRow}>
                 <Text style={styles.dateLabel}>Expiry date:</Text>
-                <DateTimePicker
-                mode='date'
-                display='default'
-                value={new Date(expiryDate)}
-                onChange={(event, selectedDate) => {
-                    if (selectedDate) {
-                        setExpiryDate(selectedDate.toISOString())
-                    }
-                }}
-                minimumDate={new Date()}
-                maximumDate={new Date(2050, 1, 1)}
-            />
+                <Pressable
+                    style={styles.dateField}
+                    onPress={() => setShowDatePicker(true)}
+                >
+                    <Text style={styles.dateFieldText}>
+                        {expiryDate ? new Date(expiryDate).toLocaleDateString() : 'Select date'}
+                    </Text>
+                </Pressable>
             </View>
+            {showDatePicker && (
+                    <DateTimePicker
+                        mode='date'
+                        display='default'
+                        value={new Date(expiryDate)}
+                        onChange={(event, selectedDate) => {
+                        setShowDatePicker(false);
+                        if (selectedDate) setExpiryDate(selectedDate.toISOString());
+                        }}
+                        minimumDate={new Date()}
+                        maximumDate={new Date(2050, 1, 1)}
+                    />
+            )}
+
             {errors.expiryDate && <Text style={styles.error}>{errors.expiryDate}</Text>}
             <TextInput
                 placeholder='Quantity'
@@ -211,5 +223,20 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         width: 220
+    },
+    dateField: {
+        borderWidth: 1,
+        borderColor: 'rgba(0, 0, 0, 0.4)',
+        borderRadius: 4,
+        paddingVertical: 6,
+        paddingHorizontal: 10,
+        width: 140,
+        backgroundColor: colors.background,
+        justifyContent: 'center',
+        marginLeft: 8,
+    },
+    dateFieldText: {
+        fontSize: 18,
+        color: '#222'
     }
 });

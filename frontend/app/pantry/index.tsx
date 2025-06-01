@@ -147,7 +147,7 @@ export default function PantryList() {
                 ]}
                 onPress={syncWithBackend}
             >
-                <Text>Sync Now</Text>
+                <Text style={styles.syncButtonText}>Sync Now</Text>
             </Pressable>
 
         </View>
@@ -250,5 +250,8 @@ const styles = StyleSheet.create({
     },
     syncButtonPressed: {
         opacity: 0.6
+    },
+    syncButtonText: {
+        fontSize: 16
     }
 });
