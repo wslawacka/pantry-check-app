@@ -5,7 +5,6 @@ import { useRouter } from 'expo-router';
 import { validateName, validateCategory, validateExpiryDate, validateQuantity, validateBarcode } from '../../utils/pantryItemValidation';
 import { useAuthGuard } from "../../hooks/useAuthGuard";
 import { addPantryItem } from '../../api/pantry';
-import NetInfo from '@react-native-community/netinfo';
 import { cachePantryItems, getCachedPantryItems, queueOfflineAction } from '../../offline/sync';
 import BarcodeScanner from '../../components/BarcodeScanner';
 import colors from '../../styles/colors';
@@ -51,22 +50,14 @@ export default function AddPantryItem() {
         const item = { name, category: category.toLowerCase(), expiryDate: expiryDate.split('T')[0], quantity,  ...(barcode ? { barcode } : {}) };
 
         try {
-            const state = await NetInfo.fetch();
-            if (state.isConnected && state.isInternetReachable) {
-                await addPantryItem(item);
-            } else {
-                await queueOfflineAction({ type: 'ADD', item });
-                const cached = await getCachedPantryItems();
-                await cachePantryItems([...cached, item]);
-                Alert.alert('Offline', 'Item added and will sync when you are back online.');
-            }
-            router.replace('/pantry');
-        } catch(error: any) {
-            Alert.alert(
-                'Error',
-                error.response?.data?.message || 'Failed to add item'
-            );
+            await addPantryItem(item);
+        } catch (err) {
+            await queueOfflineAction({ type: 'ADD', item });
+            const cached = await getCachedPantryItems();
+            await cachePantryItems([...cached, item]);
+            Alert.alert('Offline', 'Item added and will sync when you are back online.');
         }
+        router.replace('/pantry');
     };
 
     return (

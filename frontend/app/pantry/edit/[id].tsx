@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react';
 import { View, Text, TextInput, ActivityIndicator, StyleSheet, Pressable, Alert, Keyboard } from 'react-native';
 import { useLocalSearchParams, router } from 'expo-router';
 import DateTimePicker from '@react-native-community/datetimepicker';
-import NetInfo from '@react-native-community/netinfo';
 import { getPantryItem, updatePantryItem } from '../../../api/pantry';
 import { validateName, validateCategory, validateExpiryDate, validateQuantity, validateBarcode } from '../../../utils/pantryItemValidation';
 import { getCachedPantryItems, queueOfflineAction, cachePantryItems } from '../../../offline/sync';
@@ -83,22 +82,18 @@ export default function EditPantryItem() {
             quantity: Number(quantity),
             ...(barcode ? { barcode } : {})
         };
-        try {
-            const state = await NetInfo.fetch();
-            if (state.isConnected) {
-                await updatePantryItem(item._id, updated);
-            } else {
-                await queueOfflineAction({ type: 'UPDATE', item: updated });
-            }
-            const cached = await getCachedPantryItems();
-            const newCache = cached.map(i => i._id === item._id ? updated : i);
-            await cachePantryItems(newCache);
-            router.replace('/pantry');
-        } catch (err: any) {
-            Alert.alert('Error', err.response?.data?.message || 'Failed to update item');
-        } finally {
-            setSaving(false);
-        }
+    try {
+        await updatePantryItem(item._id, updated);
+    } catch (err) {
+        await queueOfflineAction({ type: 'UPDATE', item: updated });
+        const cached = await getCachedPantryItems();
+        const newCache = cached.map(i => i._id === item._id ? updated : i);
+        await cachePantryItems(newCache);
+    }
+    finally {
+        setSaving(false);
+        router.replace('/pantry');
+    }
     };
 
     if (loading) return <ActivityIndicator />;

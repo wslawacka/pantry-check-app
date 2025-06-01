@@ -1,5 +1,4 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import NetInfo from '@react-native-community/netinfo';
 import api from '../api/axios';
 import { PantryItem, PantryItemCreate } from '../types/pantry';
 import { SyncAction } from '../types/sync';
@@ -47,7 +46,6 @@ export async function syncWithBackend(): Promise<void> {
                     break;
             }
         } catch (err) {
-            console.error('Sync failed for action:', action, err);
             failedActions.push(action);
         }
     }
@@ -62,13 +60,4 @@ export async function syncWithBackend(): Promise<void> {
             console.error('Failed to refresh cache:', err);
         }
     }
-}
-
-export function listenForNetworkSync(): () => void {
-    const unsubscribe = NetInfo.addEventListener(state => {
-        if (state.isConnected && state.isInternetReachable) {
-            syncWithBackend();
-        }
-    });
-    return unsubscribe;
 }

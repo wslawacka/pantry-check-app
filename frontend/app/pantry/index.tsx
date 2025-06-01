@@ -7,7 +7,6 @@ import { getPantryItems, deletePantryItem } from "../../api/pantry";
 import { PantryItem } from "../../types/pantry";
 import { getCachedPantryItems, cachePantryItems, queueOfflineAction, syncWithBackend } from "../../offline/sync";
 import * as SecureStore from 'expo-secure-store';
-import NetInfo from '@react-native-community/netinfo';
 
 export default function PantryList() {
     const loadingAuth = useAuthGuard();
@@ -26,10 +25,6 @@ export default function PantryList() {
                 setItems(res.data.items);
                 await cachePantryItems(res.data.items);
             }
-        }  catch (err: any) {
-            if (err.response?.status !== 401) {
-                Alert.alert('Error', 'Failed to load pantry items (showing offline data if available)');
-            }
         } finally {
             if (isMounted) setLoading(false);
         }
@@ -41,27 +36,12 @@ export default function PantryList() {
     }, []);
 
     const handleDelete = async (id: string) => {
-        const prevItems = items;
         setItems(prev => prev.filter(item => item._id !== id));
         try {
-            const state = await NetInfo.fetch();
-            if (state.isConnected) {
-                await deletePantryItem(id);
-            } else {
-                await queueOfflineAction({ type: 'DELETE', item: { _id: id } });
-            }
-        } catch(error) {
-            if (
-                error.code === 'ERR_NETWORK' ||
-                error.message === 'Network Error' ||
-                !error.response
-            ) {
+            await deletePantryItem(id);
+        } catch (err) {
             await queueOfflineAction({ type: 'DELETE', item: { _id: id } });
             Alert.alert('Offline', 'Delete will be synced when you are back online.');
-        } else {
-            setItems(prevItems);
-            Alert.alert('Error', error.response?.data?.message || 'Failed to delete item');
-        }
         }
     };
 
