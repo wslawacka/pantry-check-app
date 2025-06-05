@@ -24,16 +24,32 @@ export async function syncWithBackend(): Promise<void> {
     if (queue.length === 0) return;
 
     const failedActions: SyncAction[] = [];
+    const idMap = new Map<string, string>();
 
     for (const action of queue) {
         try {
             switch (action.type) {
                 case 'ADD':
-                    await addPantryItem(action.item);
+                    try {
+                        const { _id, ...itemWithoutId } = action.item;
+                        const response = await addPantryItem(itemWithoutId);
+                        idMap.set(action.item._id, response.data.item._id);
+                        const cached = await getCachedPantryItems();
+                        const newCache = cached.map(item =>
+                            item._id === _id ? { ...response.data.item } : item
+                        );
+                        await cachePantryItems(newCache);
+                    } catch (err) {
+                        failedActions.push(action);
+                    }
                     break;
                 case 'DELETE':
                     try {
-                        await deletePantryItem(action.item._id);
+                        const cached = await getCachedPantryItems();
+                        const newCache = cached.filter(i => i._id !== action.item._id);
+                        await cachePantryItems(newCache);
+                        const realId = idMap.get(action.item._id) || action.item._id;
+                        await deletePantryItem(realId);
                     } catch (err) {
                         if (err.response?.status === 404) {
                             continue;
@@ -42,7 +58,14 @@ export async function syncWithBackend(): Promise<void> {
                     }
                     break;
                 case 'UPDATE':
-                    await updatePantryItem(action.item._id, action.item);
+                    const realId = idMap.get(action.item._id) || action.item._id;
+                    const updatedItem = { ...action.item, _id: realId };
+                    await updatePantryItem(realId, updatedItem);
+                    const cached = await getCachedPantryItems();
+                    const newCache = cached.map(i =>
+                        i._id === realId ? updatedItem : i
+                    );
+                    await cachePantryItems(newCache);
                     break;
             }
         } catch (err) {

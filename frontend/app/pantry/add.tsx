@@ -6,6 +6,8 @@ import { validateName, validateCategory, validateExpiryDate, validateQuantity, v
 import { useAuthGuard } from "../../hooks/useAuthGuard";
 import { addPantryItem } from '../../api/pantry';
 import { cachePantryItems, getCachedPantryItems, queueOfflineAction } from '../../offline/sync';
+import { v4 as uuidv4 } from 'uuid';
+import 'react-native-get-random-values';
 import BarcodeScanner from '../../components/BarcodeScanner';
 import colors from '../../styles/colors';
 
@@ -51,13 +53,17 @@ export default function AddPantryItem() {
 
         try {
             await addPantryItem(item);
+            router.replace('/pantry');
         } catch (err) {
-            await queueOfflineAction({ type: 'ADD', item });
+            console.log('clicked add offline');
+            const newItem = { _id: uuidv4(), ...item };
+            console.log(newItem);
+            await queueOfflineAction({ type: 'ADD', item: newItem });
             const cached = await getCachedPantryItems();
-            await cachePantryItems([...cached, item]);
+            await cachePantryItems([...cached, newItem]);
             Alert.alert('Offline', 'Item added and will sync when you are back online.');
+            router.replace('/pantry');
         }
-        router.replace('/pantry');
     };
 
     return (
